@@ -394,6 +394,7 @@ enum ufs_qcom_phy_init_type {
  * Enable this quirk to give an additional TX_HS_SYNC_LENGTH.
  */
 #define UFS_DEVICE_QUIRK_PA_TX_HSG1_SYNC_LENGTH (1 << 16)
+#define UFS_DEVICE_QUIRK_PA_TX_HSG4_SYNC_LENGTH (1 << 17)
 
 /* UECPA - Host UIC Error Code Data Link Layer */
 #define UIC_DATA_LINK_LAYER_EC_PA_ERROR_IND_RECEIVED	0x4000

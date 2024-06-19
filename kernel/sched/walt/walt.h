@@ -188,6 +188,7 @@ extern u64 walt_sched_clock(void);
 extern void walt_init_tg(struct task_group *tg);
 extern void walt_init_topapp_tg(struct task_group *tg);
 extern void walt_init_foreground_tg(struct task_group *tg);
+extern void walt_init_camera_daemon_tg(struct task_group *tg);
 extern int register_walt_callback(void);
 extern int input_boost_init(void);
 extern int core_ctl_init(void);

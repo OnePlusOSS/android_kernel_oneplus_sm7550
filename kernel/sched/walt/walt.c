@@ -3373,6 +3373,8 @@ static void walt_update_tg_pointer(struct cgroup_subsys_state *css)
 		walt_init_topapp_tg(css_tg(css));
 	else if (!strcmp(css->cgroup->kn->name, "foreground"))
 		walt_init_foreground_tg(css_tg(css));
+	else if (!strcmp(css->cgroup->kn->name, "camera-daemon"))
+		walt_init_camera_daemon_tg(css_tg(css));
 	else
 		walt_init_tg(css_tg(css));
 }
