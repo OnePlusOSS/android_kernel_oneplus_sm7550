@@ -2888,11 +2888,6 @@ static void get_scan_count(struct lruvec *lruvec, struct scan_control *sc,
 
 	trace_android_vh_tune_swappiness(&swappiness);
 
-#ifdef CONFIG_CONT_PTE_HUGEPAGE
-	if (current_is_kswapd() && sc->order == 0)
-		swappiness = 60;
-#endif
-
 	/*
 	 * Global reclaim will swap to prevent OOM even with no
 	 * swappiness, but memcg users want to use this knob to

@@ -4696,16 +4696,31 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
 #endif
 
 	if (vmf->flags & FAULT_FLAG_SPECULATIVE) {
-		pte_unmap(vmf->pte);
-		count_vm_spf_event(SPF_ABORT_SWAP);
-		return VM_FAULT_RETRY;
+		bool allow_swap_spf = false;
+
+		/* ksm_might_need_to_copy() needs a stable VMA, spf can't be used */
+#ifndef CONFIG_KSM
+		trace_android_vh_do_swap_page_spf(&allow_swap_spf);
+#endif
+		if (!allow_swap_spf) {
+			pte_unmap(vmf->pte);
+			count_vm_spf_event(SPF_ABORT_SWAP);
+			return VM_FAULT_RETRY;
+		}
 	}
 
-	if (!pte_unmap_same(vma->vm_mm, vmf->pmd, vmf->pte, vmf->orig_pte))
+	if (!pte_unmap_same(vma->vm_mm, vmf->pmd, vmf->pte, vmf->orig_pte)) {
+		if (vmf->flags & FAULT_FLAG_SPECULATIVE)
+			ret = VM_FAULT_RETRY;
 		goto out;
+	}
 
 	entry = pte_to_swp_entry(vmf->orig_pte);
 	if (unlikely(non_swap_entry(entry))) {
+		if (vmf->flags & FAULT_FLAG_SPECULATIVE) {
+			ret = VM_FAULT_RETRY;
+			goto out;
+		}
 		if (is_migration_entry(entry)) {
 			migration_entry_wait(vma->vm_mm, vmf->pmd,
 					     vmf->address);
@@ -4878,6 +4893,17 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
 				set_page_private(page, 0);
 			}
 			}
+		} else if (vmf->flags & FAULT_FLAG_SPECULATIVE) {
+			/*
+			 * Don't try readahead during a speculative page fault
+			 * as the VMA's boundaries may change in our back.
+			 * If the page is not in the swap cache and synchronous
+			 * read is disabled, fall back to the regular page fault
+			 * mechanism.
+			 */
+			delayacct_clear_flag(current, DELAYACCT_PF_SWAPIN);
+			ret = VM_FAULT_RETRY;
+			goto out;
 		} else {
 #if defined(CONFIG_CONT_PTE_HUGEPAGE)
 			bool suitable = false;

@@ -468,6 +468,7 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_enable_thermal_genl_check);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_xhci_urb_suitable_bypass);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_alloc_pages_entry);
 EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_isolate_freepages);
+EXPORT_TRACEPOINT_SYMBOL_GPL(android_vh_do_swap_page_spf);
 /*
  * For type visibility
  */
